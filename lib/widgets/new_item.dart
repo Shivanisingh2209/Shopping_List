@@ -27,7 +27,7 @@ class _NewItemState extends State<NewItem> {
                       value.trim().length <= 1 ||
                       value.trim().length > 50) {
                     return 'Must be between 1 and 50 characters.';
-                  };
+                  }
                   return null;
                 },
               ),
@@ -40,7 +40,15 @@ class _NewItemState extends State<NewItem> {
                         label: Text('Quantity'),
                       ),
                       initialValue: '1',
-                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            int.tryParse(value) == null ||
+                            int.tryParse(value)! <= 0) {
+                          return 'Must be a valid positive number.';
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
