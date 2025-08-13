@@ -14,7 +14,7 @@ class GroceryList extends StatefulWidget {
 }
 
 class _GroceryListState extends State<GroceryList> {
-  final List<GroceryItem> _groceryItems = [];
+   List<GroceryItem> _groceryItems = [];
 
   @override
   void initState() {
@@ -28,21 +28,25 @@ class _GroceryListState extends State<GroceryList> {
       'shopping-list.json',
     );
     final response = await http.get(url);
-    final Map<String, Map<String, dynamic>> listData = json.decode(
-        response.body);
-    final List<GroceryItem> _loadedItems = [];
+    final Map<String, dynamic> listData = json.decode(response.body);
+    final List<GroceryItem> loadedItems = [];
     for (final item in listData.entries) {
       final category = categories.entries.firstWhere(
               (catItem) => catItem.value.title == item.value['category'])
           .value;
-      _loadedItems.add(
+      loadedItems.add(
         GroceryItem(id: item.key,
           name: item.value['name'],
-          quantity: item.value['quantity'],
+          quantity: item.value['quantity'] is int
+              ? item.value['quantity']
+              : int.parse(item.value['quantity']),
           category: category,
         ),
       );
     }
+    setState(() {
+      _groceryItems = loadedItems;
+    });
   }
 
   void _addItem() async {
