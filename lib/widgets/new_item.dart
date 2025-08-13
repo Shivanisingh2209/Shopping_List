@@ -18,17 +18,29 @@ class _NewItemState extends State<NewItem> {
   var _enteredQuantity = 1;
   var _selectedCategory = categories[Categories.vegetables]!;
 
-  void _saveItem() {
+  void _saveItem() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final url = Uri.https('shopping-list-42864-default-rtdb.firebaseio.com', 'shopping-list.json');
-      http.post(url, headers: {
-        'Content-Type': 'application/json',
-      }, body: json.encode({
-        'name': _enteredName,
-        'quantity': _enteredQuantity.toString(),
-        'category': _selectedCategory.title,
-      },),);
+      final url = Uri.https(
+        'shopping-list-42864-default-rtdb.firebaseio.com',
+        'shopping-list.json',
+      );
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'name': _enteredName,
+          'quantity': _enteredQuantity.toString(),
+          'category': _selectedCategory.title,
+        }),
+      );
+      print(response.body);
+      print(response.statusCode);
+
+      if (!context.mounted) {
+        return;
+      }
+      Navigator.of(context).pop();
       // Navigator.of(context).pop(
       //   GroceryItem(
       //     id: DateTime.now().toString(),
@@ -63,9 +75,7 @@ class _NewItemState extends State<NewItem> {
                   return null;
                 },
                 onSaved: (value) {
-                  setState(() {
-
-                  });
+                  setState(() {});
                   _enteredName = value!;
                   print(_enteredName);
                 },
@@ -128,10 +138,13 @@ class _NewItemState extends State<NewItem> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(onPressed: () {
-                    _formKey.currentState!.reset();
-                  }, child: const Text('Reset'),),
-                  ElevatedButton(onPressed: _saveItem, child: Text('Add Item'),)
+                  TextButton(
+                    onPressed: () {
+                      _formKey.currentState!.reset();
+                    },
+                    child: const Text('Reset'),
+                  ),
+                  ElevatedButton(onPressed: _saveItem, child: Text('Add Item')),
                 ],
               ),
             ],
